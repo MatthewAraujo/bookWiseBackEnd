@@ -1,16 +1,21 @@
-import { BookRepository } from "@/repositories/book-repository"
-import { BookAlreadyExists } from "./errors/book-already-exists"
+import { Book } from '@prisma/client'
+import { BookAlreadyExistsError } from './errors/book-already-exists-error'
+import { BooksRepository } from '@/repositories/book-repository'
 
 interface BookUseCaseRequest {
-  name: string,
+  name: string
   author: string
   summary: string
-  coverUrl:string
+  coverUrl: string
   totalPages: number
-  categories: [{id:string}]
+  categories: { id: string }[]
+}
+
+interface BookUseCaseResponse {
+  book: Book
 }
 export class BookUseCase {
-  constructor(private bookRepository: BookRepository) {}
+  constructor(private bookRepository: BooksRepository) {}
 
   async execute({
     name,
@@ -18,27 +23,29 @@ export class BookUseCase {
     summary,
     coverUrl,
     totalPages,
-    categories
-  }: BookUseCaseRequest) {
-
+    categories,
+  }: BookUseCaseRequest): Promise<BookUseCaseResponse> {
     const bookWithSameName = await this.bookRepository.findBookByName(name)
 
-    if(bookWithSameName){
-      throw new BookAlreadyExists()
+    if (bookWithSameName) {
+      throw new BookAlreadyExistsError()
     }
 
-
-    await this.bookRepository.create({
+    const book = await this.bookRepository.create({
       name,
       author,
       summary,
-      cover_url:coverUrl,
-      total_pages:totalPages,
+      cover_url: coverUrl,
+      total_pages: totalPages,
       categories: {
-        create: categories.map(category => ({
-          category: { connect: { id: category.id } }
-        }))
+        create: categories.map((category) => ({
+          category: { connect: { id: category.id } },
+        })),
       },
     })
+
+    return {
+      book,
+    }
   }
 }

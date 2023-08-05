@@ -1,29 +1,34 @@
-import { CategoryRepository } from '@/repositories/category-repository'
-import { CategoryAlreadyExists } from './errors/category-already-exists'
+import { Category } from '@prisma/client'
+import { CategoryAlreadyExistsError } from './errors/category-already-exists-error'
+import { CategorysRepository } from '@/repositories/category-repository'
 
 interface CategoryUseCaseRequest {
-  name: string,
+  name: string
   id: string
 }
+
+interface CategoryUseCaseResponse {
+  category: Category
+}
 export class CategoryUseCase {
-  constructor(private categoryRepository: CategoryRepository) {}
+  constructor(private categoryRepository: CategorysRepository) {}
 
   async execute({
     name,
-    id
-    
-  }: CategoryUseCaseRequest) {
-
+    id,
+  }: CategoryUseCaseRequest): Promise<CategoryUseCaseResponse> {
     const categoryWithSameName = await this.categoryRepository.findByName(name)
 
-    if(categoryWithSameName){
-      throw new CategoryAlreadyExists()
+    if (categoryWithSameName) {
+      throw new CategoryAlreadyExistsError()
     }
 
-
-    await this.categoryRepository.create({
+    const category = await this.categoryRepository.create({
       name,
-      id
+      id,
     })
+    return {
+      category,
+    }
   }
 }

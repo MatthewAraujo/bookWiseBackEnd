@@ -1,6 +1,6 @@
-import { Book, Prisma } from "@prisma/client";
+import { Book, Prisma } from '@prisma/client'
 
-export interface BookRepository {
+export interface BooksRepository {
   create(data: Prisma.BookCreateInput): Promise<Book>
-  findBookByName(id: string): Promise<Book | null>
+  findBookByName(name: string): Promise<Book | null>
 }

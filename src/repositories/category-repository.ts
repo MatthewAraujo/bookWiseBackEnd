@@ -1,6 +1,6 @@
-import { Category, Prisma } from "@prisma/client";
+import { Category, Prisma } from '@prisma/client'
 
-export interface CategoryRepository {
-  create(data: Prisma.CategoryCreateInput): Promise<Category>;
-  findByName(id: string): Promise<Category | null>;
+export interface CategorysRepository {
+  create(data: Prisma.CategoryCreateInput): Promise<Category>
+  findByName(name: string): Promise<Category | null>
 }
